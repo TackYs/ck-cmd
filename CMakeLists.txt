@@ -4,7 +4,7 @@ project( "ck-cmd" )
 include(ExternalProject)
 
 option(PROJECT_STATIC_RUNTIME "Build with static runtime libs (/MT)" ON)
-option(PROJECT_GUI "Build GUI" ON)
+option(PROJECT_GUI "Build GUI" OFF)
 UNSET(HAVE_SPEEDTREE CACHE)
 option(HAVE_SPEEDTREE "Build with speedtree support" OFF)
 
@@ -567,13 +567,6 @@ endif()
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/modules/geometry/v-hacd/src)
 
-#QT
-IF (PROJECT_GUI)
-	find_package(Qt5 COMPONENTS Widgets Qml Quick REQUIRED)
-
-# Directory with the source code
-	add_subdirectory(gui)
-ENDIF ()
 
 # Build lib
 add_library( ck-cmd-lib STATIC ${PROJECT_SRC} ${PROJECT_HEADERS} ${PROJECT_COMMANDS} ${COMMANDS_SRC} )
