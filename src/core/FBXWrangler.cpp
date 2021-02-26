@@ -5398,17 +5398,18 @@ bool FBXWrangler::LoadMeshes(const FBXImportOptions& options) {
 				setAvTransform(child, nif_child);
 			}
 			conversion_Map[child] = nif_child;
-			Log::Info("conversion_Map size %d", conversion_Map.size());
+			//Log::Info("conversion_Map size %d", conversion_Map.size());
 
-			/*TACKY*/
+			/*TACKY changes*/
+			NiNodeRef HDT_parent;
 			if (export_skin)
-				if ( !ends_with(child_name,"_HDT") )
-					parent = conversion_root;
-			/*TACKY*/
+				HDT_parent = DynamicCast<NiNode>(conversion_Map[root]);
+				parent = conversion_root;
 
-			/*parent is the currently processed node, children are the current nodes children*/
 			if (parent != NULL) {
-				vector<Ref<NiAVObject > > children = parent->GetChildren();
+				vector<Ref<NiAVObject > > children = parent->GetChildren(); //Collects all children of root
+				vector<Ref<NiAVObject > > HDTchildren = HDT_parent->GetChildren(); //Collects all children of current node
+
 				if (export_skin)
 				{
 					if (nif_child->IsDerivedType(NiNode::TYPE))
@@ -5424,21 +5425,32 @@ bool FBXWrangler::LoadMeshes(const FBXImportOptions& options) {
 						}
 					}
 					if (bones.find(child) != bones.end())
-					{	
+					{
 						/*TACKY, the HDT bones should have a normal call to setAvTransform*/
-						if ( ends_with(child_name,"_HDT") )
+						if (ends_with(child_name, "_HDT")){
 							setAvTransform(child, nif_child, false, false);
-						else
+							HDTchildren.push_back(nif_child);
+						}
+						else {
 							setAvTransform(child, nif_child, false, true);
-						children.push_back(nif_child); 
+							children.push_back(nif_child);
+						}
 					}
 				}
 				else {
 					children.push_back(nif_child);
 				}
-				/*TO FIX: This must branch , some non-HDT bones can have both HDT and non-hdt bones. This causes parent to be conversion_root for all of them*/
+
 				parent->SetChildren(children);
-				conversion_parent_Map[StaticCast<NiAVObject>(nif_child)] = StaticCast<NiAVObject>(parent);
+				if (HDTchildren.size() > 0) {
+					HDT_parent->SetChildren(HDTchildren);
+				}
+				if (ends_with(child_name, "_HDT")) {
+					conversion_parent_Map[StaticCast<NiAVObject>(nif_child)] = StaticCast<NiAVObject>(HDT_parent);
+				} else {
+					conversion_parent_Map[StaticCast<NiAVObject>(nif_child)] = StaticCast<NiAVObject>(parent);
+				}
+
 			}
 			loadNodeChildren(child);
 		}
@@ -5454,7 +5466,7 @@ bool FBXWrangler::LoadMeshes(const FBXImportOptions& options) {
 	};
 
 	loadNodeChildren(root);
-	/* TACKY removing this logging drastically increases export speed
+	/* TACKY removing logging 
 	//DEBUG
 	for (const auto& ni : conversion_Map) {
 		Log::Info("Fbx Node %s -> NiNode %s", ni.first->GetName(), DynamicCast<NiNode>(ni.second)->GetName().c_str());
