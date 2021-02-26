@@ -5402,13 +5402,16 @@ bool FBXWrangler::LoadMeshes(const FBXImportOptions& options) {
 
 			/*TACKY changes*/
 			NiNodeRef HDT_parent;
-			if (export_skin)
+			vector<Ref<NiAVObject > > HDTchildren;
+			if (export_skin) {
 				HDT_parent = DynamicCast<NiNode>(conversion_Map[root]);
 				parent = conversion_root;
+			}
 
 			if (parent != NULL) {
 				vector<Ref<NiAVObject > > children = parent->GetChildren(); //Collects all children of root
-				vector<Ref<NiAVObject > > HDTchildren = HDT_parent->GetChildren(); //Collects all children of current node
+				if (export_skin)
+					HDTchildren = HDT_parent->GetChildren(); //Collects all children of current node
 
 				if (export_skin)
 				{
@@ -5427,7 +5430,7 @@ bool FBXWrangler::LoadMeshes(const FBXImportOptions& options) {
 					if (bones.find(child) != bones.end())
 					{
 						/*TACKY, the HDT bones should have a normal call to setAvTransform*/
-						if (ends_with(child_name, "_HDT")){
+						if (ends_with(child_name, "_HDT") && export_skin){
 							setAvTransform(child, nif_child, false, false);
 							HDTchildren.push_back(nif_child);
 						}
@@ -5442,10 +5445,10 @@ bool FBXWrangler::LoadMeshes(const FBXImportOptions& options) {
 				}
 
 				parent->SetChildren(children);
-				if (HDTchildren.size() > 0) {
+				if (HDTchildren.size() > 0 && export_skin) {
 					HDT_parent->SetChildren(HDTchildren);
 				}
-				if (ends_with(child_name, "_HDT")) {
+				if (ends_with(child_name, "_HDT") && export_skin) {
 					conversion_parent_Map[StaticCast<NiAVObject>(nif_child)] = StaticCast<NiAVObject>(HDT_parent);
 				} else {
 					conversion_parent_Map[StaticCast<NiAVObject>(nif_child)] = StaticCast<NiAVObject>(parent);
@@ -5455,6 +5458,8 @@ bool FBXWrangler::LoadMeshes(const FBXImportOptions& options) {
 			loadNodeChildren(child);
 		}
 
+		//Parent for trishapes should be conversion root
+		parent = conversion_root;
 		for (int i = 0; i < root->GetNodeAttributeCount(); i++)
 		{
 			if (root->GetNodeAttributeByIndex(i) != NULL && root->GetNodeAttributeByIndex(i)->GetAttributeType() == FbxNodeAttribute::eMesh) {

@@ -1,14 +1,16 @@
 # Welcome to this ck-cmd fork!
 ## It has two main purposes:
 
-1) Importskin: Naming bones "_HDT" should let those Bones keep their parenting and not have it set to root.
-  
-      - such _HDT Bones may not have non-HDT children (throws exception)
+1) Importskin: Naming bones "_HDT" lets those Bones keep their parenting and not have it set to root.
 
-2) Importfbx: While using blender 2.8+ the output nif has extra ninodes parenting all objects. Remove these extra ninodes (might break other functionality)
+	- use this command to convert character armors/skins to nif  
+
+2) Importfbx: While using blender 2.8+ the output nif has extra ninodes parenting all meshes, which tend to crash the game - at least LE. This fork removes these extra ninodes (might break other functionality - dont' know)
+
+	- use this command to convert clutter/other objects to nif (even if those are animated)
 
 Minor tweaks:
-Reducing skin partition logging, increases command speed for skinned meshes significantly.
+Reducing logging overall, increases speed for skinned meshes significantly.
 
 ## Notes
 I only test things using blender 2.8+ and its exported fbx:es. 
