@@ -132,7 +132,7 @@ Commands:
 )";
 
     vector<CommandBase*> cmdList = ExeCommandList::GetCommandList();
-    for each (CommandBase* cmd in cmdList)
+    for (auto &cmd : cmdList)
     {
         help += "    " + cmd->GetName() + " - " + cmd->GetHelpShort() + "\r\n";
     }
