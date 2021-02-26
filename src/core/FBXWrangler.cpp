@@ -2889,8 +2889,9 @@ class Accessor<AccessSkin>
 								else {
 									ni_bone = DynamicCast<NiNode>(conversion_Map[bone]);
 								} 
-
-								Log::Info("Fbx Bone %s -> NiBode %s", bone->GetName(), ni_bone->GetName().c_str());
+								/* TACKY
+								Log::Info("Fbx Bone %s -> NiNode %s", bone->GetName(), ni_bone->GetName().c_str());
+								*/
 								if (partition.boneIndices.size() < ni_partition_triangle[i] + 1)
 								{
 									partition.boneIndices.resize(ni_partition_triangle[i] + 1);
@@ -5398,8 +5399,14 @@ bool FBXWrangler::LoadMeshes(const FBXImportOptions& options) {
 			}
 			conversion_Map[child] = nif_child;
 			Log::Info("conversion_Map size %d", conversion_Map.size());
+
+			/*TACKY*/
 			if (export_skin)
-				parent = conversion_root;
+				if ( !ends_with(child_name,"_HDT") )
+					parent = conversion_root;
+			/*TACKY*/
+
+			/*parent is the currently processed node, children are the current nodes children*/
 			if (parent != NULL) {
 				vector<Ref<NiAVObject > > children = parent->GetChildren();
 				if (export_skin)
@@ -5417,18 +5424,22 @@ bool FBXWrangler::LoadMeshes(const FBXImportOptions& options) {
 						}
 					}
 					if (bones.find(child) != bones.end())
-					{
-						setAvTransform(child, nif_child, false, true);
-						children.push_back(nif_child);
+					{	
+						/*TACKY, the HDT bones should have a normal call to setAvTransform*/
+						if ( ends_with(child_name,"_HDT") )
+							setAvTransform(child, nif_child, false, false);
+						else
+							setAvTransform(child, nif_child, false, true);
+						children.push_back(nif_child); 
 					}
 				}
 				else {
 					children.push_back(nif_child);
 				}
+				/*TO FIX: This must branch , some non-HDT bones can have both HDT and non-hdt bones. This causes parent to be conversion_root for all of them*/
 				parent->SetChildren(children);
 				conversion_parent_Map[StaticCast<NiAVObject>(nif_child)] = StaticCast<NiAVObject>(parent);
 			}
-
 			loadNodeChildren(child);
 		}
 
@@ -5443,12 +5454,12 @@ bool FBXWrangler::LoadMeshes(const FBXImportOptions& options) {
 	};
 
 	loadNodeChildren(root);
-
+	/* TACKY removing this logging drastically increases export speed
 	//DEBUG
 	for (const auto& ni : conversion_Map) {
 		Log::Info("Fbx Node %s -> NiNode %s", ni.first->GetName(), DynamicCast<NiNode>(ni.second)->GetName().c_str());
 	}
-
+	*/
 	//skins
 
 	for (const auto& p : skins_Map)
