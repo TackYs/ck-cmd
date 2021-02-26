@@ -1,3 +1,19 @@
+# Welcome to this ck-cmd fork!
+## It has two main purposes:
+
+1) Importskin: Naming bones "_HDT" should let those Bones keep their parenting and not have it set to root.
+  
+      - such _HDT Bones may not have non-HDT children (throws exception)
+
+2) Importfbx: While using blender 2.8+ the output nif has extra ninodes parenting all objects. Remove these extra ninodes (might break other functionality)
+
+Minor tweaks:
+Reducing skin partition logging, increases command speed for skinned meshes significantly.
+
+## Notes
+I only test things using blender 2.8+ and its exported fbx:es. 
+I only test the exportskin and exportfbx commands.
+
 # ck-cmd
 
 [![Build status](https://ci.appveyor.com/api/projects/status/pjtq91xk722dksny/branch/master?svg=true)](https://ci.appveyor.com/project/aerisarn/ck-cmd/branch/master)
@@ -32,13 +48,13 @@ D:\CK-CMD\
 
 - Ensure all faces have the intended materials applied, as ck-cmd will create BSLightingShaderProperty nodes with any applicable materials in the FBX. Note that some material shaders do not translate correctly to BSLightingShaderProperty nodes, so check this first if the generated BSLightingShaderProperty nodes have issues. Standard blinn materials are recommended. 
 
-- The application will also use the same file paths as your 3D software’s material shaders, meaning that if you set up materials with the textures already in their proper end-user location in \Data\Textures, you may not need to change the paths in the nif later.
+- The application will also use the same file paths as your 3D softwareâ€™s material shaders, meaning that if you set up materials with the textures already in their proper end-user location in \Data\Textures, you may not need to change the paths in the nif later.
 
 - Assets should be combined into a single object, as ck-cmd will automatically create multiple NiTriShapes to match the materials assigned to faces of the mesh. 
 
 - It is not necessary to flip or change export settings to compensate for Z-up vs Y-up modeling software.
 
-- The name of your mesh or submeshes in your software’s outliner (or specific term for object heirarchy) will be used to create strings in the nif.
+- The name of your mesh or submeshes in your softwareâ€™s outliner (or specific term for object heirarchy) will be used to create strings in the nif.
 
 - The other usual pre-export checks apply (freeze any transformations, check pivot/origin, apply any modifiers, etc).
 
@@ -71,7 +87,7 @@ Text highlighted refers to meshes, while the intermediary hierarchy objects are 
 ## Converting FBX to Nif:
 
 1. Open the command prompt.
-2. Navigate to CK-Cmd’s location.
+2. Navigate to CK-Cmdâ€™s location.
 3. Use the command:    ck-cmd.exe importfbx (full input path\Example.fbx) -e (full output path)
 4. Wait for the process to finish.
 5. Open the resulting nif in nifskope for inspection. It is generated in the output location with the same name as the fbx file originally used for input.
@@ -88,7 +104,7 @@ Ck-cmd should have created a nif file with all basic setup complete, such as str
 
 - If your asset appears untextured (bright magenta in color), you will need to direct nifskope to the proper texture paths. 
 
-- You will still need to adjust visuals via BSLightingShaderProperty settings that are not present in your default modeling software’s materials, such as the global glossiness value, switching shader types, adding shader flags such as emission or environment mapping, etc, as well as other arbitrary settings in the nif, such as audio material settings.
+- You will still need to adjust visuals via BSLightingShaderProperty settings that are not present in your default modeling softwareâ€™s materials, such as the global glossiness value, switching shader types, adding shader flags such as emission or environment mapping, etc, as well as other arbitrary settings in the nif, such as audio material settings.
 
 | ![image3.png](doc/images/image3.png) | 
 |:--:| 
